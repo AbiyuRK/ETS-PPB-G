@@ -1,38 +1,52 @@
 package com.example.rupiahtracker.ui.viewmodel
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.rupiahtracker.data.AppDatabase
 import com.example.rupiahtracker.data.Transaction
 import com.example.rupiahtracker.repository.TransactionRepository
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class TransactionViewModel(application: Application): AndroidViewModel(application) {
-    private val repository: TransactionRepository
-    val allTransaction: LiveData<List<Transaction>>
-    val totalIncome: LiveData<Double>
-    val totalOutcome: LiveData<Double>
+class TransactionViewModel(private val repository: TransactionRepository) : ViewModel() {
 
-    init {
-        val transactionDao = AppDatabase.getDatabase(application).transactionDao()
-        repository = TransactionRepository(transactionDao)
-        allTransaction = repository.allTransactions
-        totalIncome = repository.totalIncome
-        totalOutcome = repository.totalOutcome
+    val allTransaction: StateFlow<List<Transaction>> = repository.allTransactions
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = emptyList()
+        )
+
+    val totalIncome: StateFlow<Double> = repository.totalIncome
+        .map { it ?: 0.0 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0.0
+        )
+
+    val totalOutcome: StateFlow<Double> = repository.totalOutcome
+        .map { it ?: 0.0 }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0.0
+        )
+
+    fun insert(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.insert(transaction)
+        }
     }
 
-    fun insert(transaction: Transaction) = viewModelScope.launch(Dispatchers.IO) {
-        repository.insert(transaction)
+    fun update(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.update(transaction)
+        }
     }
 
-    fun update(transaction: Transaction) = viewModelScope.launch(Dispatchers.IO) {
-        repository.update(transaction)
-    }
-
-    fun delete(transaction: Transaction) = viewModelScope.launch(Dispatchers.IO) {
-        repository.delete(transaction)
+    fun delete(transaction: Transaction) {
+        viewModelScope.launch {
+            repository.delete(transaction)
+        }
     }
 }

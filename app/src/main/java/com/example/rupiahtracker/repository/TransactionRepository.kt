@@ -3,13 +3,14 @@ package com.example.rupiahtracker.repository
 import androidx.lifecycle.LiveData
 import com.example.rupiahtracker.data.Transaction
 import com.example.rupiahtracker.data.TransactionDao
+import kotlinx.coroutines.flow.Flow
 
 class TransactionRepository(private val transactionDao: TransactionDao) {
-    val allTransactions: LiveData<List<Transaction>> = transactionDao.getAllTransactions()
-    val totalIncome: LiveData<Double> = transactionDao.getTotalIncome()
-    val totalOutcome: LiveData<Double> = transactionDao.getTotalOutcome()
+    val allTransactions: Flow<List<Transaction>> = transactionDao.getAllTransactions()
+    val totalIncome: Flow<Double?> = transactionDao.getTotalIncome()
+    val totalOutcome: Flow<Double?> = transactionDao.getTotalOutcome()
 
-    fun getTransactionsByType(type: String): LiveData<List<Transaction>> {
+    fun getTransactionsByType(type: String): Flow<List<Transaction>> {
         return transactionDao.getTransactionsByType(type)
     }
 
