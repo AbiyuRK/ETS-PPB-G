@@ -4,10 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.rupiahtracker.data.Transaction
 import com.example.rupiahtracker.repository.TransactionRepository
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-class TransactionViewModel(private val repository: TransactionRepository) : ViewModel() {
+class TransactionViewModel(private val repository: TransactionRepository): ViewModel() {
 
     val allTransaction: StateFlow<List<Transaction>> = repository.allTransactions
         .stateIn(
@@ -48,5 +51,9 @@ class TransactionViewModel(private val repository: TransactionRepository) : View
         viewModelScope.launch {
             repository.delete(transaction)
         }
+    }
+
+    suspend fun getTransactionById(id: Long): Transaction? {
+        return repository.getTransactionById(id)
     }
 }

@@ -1,9 +1,8 @@
 package com.example.rupiahtracker.repository
 
-import androidx.lifecycle.LiveData
+import kotlinx.coroutines.flow.Flow
 import com.example.rupiahtracker.data.Transaction
 import com.example.rupiahtracker.data.TransactionDao
-import kotlinx.coroutines.flow.Flow
 
 class TransactionRepository(private val transactionDao: TransactionDao) {
     val allTransactions: Flow<List<Transaction>> = transactionDao.getAllTransactions()
@@ -24,5 +23,9 @@ class TransactionRepository(private val transactionDao: TransactionDao) {
 
     suspend fun delete(transaction: Transaction) {
         return transactionDao.delete(transaction)
+    }
+
+    suspend fun getTransactionById(id: Long): Transaction? {
+        return transactionDao.getTransactionById(id)
     }
 }
